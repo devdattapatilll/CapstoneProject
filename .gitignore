@@ -5,6 +5,7 @@ venv/
 .venv/
 .vscode/
 *.log
+.gemini/
 
 # Training artifacts (large, regeneratable)
 datasets/
@@ -13,11 +14,11 @@ civictrack_training/
 yolov8n.pt
 yolov12s.pt
 
-# Temp test files
+# Temp files
 test_output.txt
 test_results.txt
 test_backend.py
 
-# Duplicate files
-app (1).py
-index (1).html
+# OS files
+.DS_Store
+Thumbs.db
