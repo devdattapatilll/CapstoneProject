@@ -12,7 +12,7 @@
 
 A community-driven platform for reporting civic issues — potholes, garbage, waterlogging, and road cracks — with AI-driven automatic detection and classification.
 
-[Live Demo](https://capstone-project-vvlg.vercel.app) | [Backend API](https://civictrack-ml.onrender.com/health) | [Deployment Guide](docs/DEPLOYMENT.md)
+[Live Demo](https://devdatta-civictrack-vvlg.vercel.app) | [Backend API](https://civictrack-ml.onrender.com/health) | [Deployment Guide](docs/DEPLOYMENT.md)
 
 </div>
 
