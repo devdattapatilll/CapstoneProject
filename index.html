@@ -175,7 +175,7 @@
           <div class="step-number">2</div>
           <div class="step-content">
             <h4>AI Analysis</h4>
-            <p>YOLOv12 object detection models scan the uploaded image for potholes, garbage, waterlogging, or road cracks. A separate NLP classifier categorizes the text description.</p>
+            <p>YOLO object detection models scan the uploaded image for potholes, garbage, waterlogging, or road cracks. A separate NLP classifier categorizes the text description.</p>
           </div>
         </div>
         <div class="workflow-connector"></div>
@@ -308,23 +308,20 @@
   import { getFirestore, collection, addDoc, doc, updateDoc, deleteDoc,
            onSnapshot, query, orderBy, serverTimestamp }
     from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
-  import { getStorage, ref as storageRef, uploadBytes, getDownloadURL }
-    from "https://www.gstatic.com/firebasejs/12.6.0/firebase-storage.js";
 
   const firebaseConfig = {
-    apiKey:            "AIzaSyD7bNZkNao0hBu5KbuPsk7OurgxD6gEAho",
-    authDomain:        "civictrack-484.firebaseapp.com",
-    projectId:         "civictrack-484",
-    storageBucket:     "civictrack-484.firebasestorage.app",
-    messagingSenderId: "51770176614",
-    appId:             "1:51770176614:web:e7ebb08172e1e7ec0969a7",
-    measurementId:     "G-K3ZMYJXYBL"
+    apiKey:            "AIzaSyBEr69_NFOxYIGXY3-Qi3QK2SE6nJN1pyo",
+    authDomain:        "capstone-project-190b5.firebaseapp.com",
+    projectId:         "capstone-project-190b5",
+    storageBucket:     "capstone-project-190b5.firebasestorage.app",
+    messagingSenderId: "282756742599",
+    appId:             "1:282756742599:web:c159bb2876c16e2c506de2",
+    measurementId:     "G-1R1YQB7V3J"
   };
 
   const app     = initializeApp(firebaseConfig);
   const auth    = getAuth(app);
   const db      = getFirestore(app);
-  const storage = getStorage(app);
 
   function computeStats(arr) {
     const s = { total: arr.length, pending: 0, progress: 0, resolved: 0 };
@@ -337,12 +334,15 @@
     return s;
   }
 
-  async function uploadImageToStorage(file) {
+  // Convert image file to base64 data URL (stored in Firestore, no Storage needed)
+  async function fileToBase64ForUpload(file) {
     if (!file) return null;
-    const path     = `issues/${Date.now()}_${file.name.replace(/\s+/g, "_")}`;
-    const imgRef   = storageRef(storage, path);
-    const snapshot = await uploadBytes(imgRef, file);
-    return getDownloadURL(snapshot.ref);
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload  = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
   }
 
   window.firebaseHelpers = {
@@ -356,7 +356,7 @@
       });
       return ref.id;
     },
-    uploadImage: uploadImageToStorage,
+    uploadImage: fileToBase64ForUpload,
     subscribeIssues: (cb) => {
       const q = query(collection(db, "issues"), orderBy("createdAt", "desc"));
       return onSnapshot(q, snap => {
