@@ -684,8 +684,57 @@ document.getElementById("f_desc")?.addEventListener("input", () => {
   clearTimeout(mlDebounce);
   mlDebounce = setTimeout(runMlAnalysis, 1200);
 });
+
+// Auto-detect category on image upload
+async function runImageAutoDetect() {
+  if (!selectedFile) return;
+  try {
+    showMlStatus("Analyzing image with AI (may take up to 60 seconds on first use)...", "info");
+    const b64 = await fileToBase64(selectedFile);
+    const resp = await fetch(`${ML_SERVICE_URL}/detect-all`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ image_base64: b64 }),
+      signal: AbortSignal.timeout(120000)
+    });
+    if (!resp.ok) throw new Error(`ML service returned ${resp.status}`);
+    const data = await resp.json();
+
+    // Auto-set category from image detection
+    const detCat = data.detected_category || "Other";
+    const sel = document.getElementById("f_category");
+    for (let i = 0; i < sel.options.length; i++) {
+      if (sel.options[i].value === detCat) { sel.selectedIndex = i; break; }
+    }
+
+    // Find best detection for badge
+    let bestConf = 0, bestName = null, bestCount = 0;
+    for (const key of ["pothole", "garbage", "crack"]) {
+      const r = data[key];
+      if (r && r.has_detection && r.confidence > bestConf) {
+        bestConf = r.confidence; bestName = key; bestCount = r.count;
+      }
+    }
+
+    if (bestName) {
+      detectionResult = { has_detection: true, confidence: bestConf, count: bestCount };
+      aiSuggestedCat = detCat;
+      aiSuggestedConf = bestConf;
+      showDetectionBadge(detectionResult);
+      showAiSuggestion(detCat, bestConf, false);
+    } else {
+      detectionResult = { has_detection: false, confidence: 0, count: 0 };
+      showDetectionBadge(detectionResult);
+    }
+    hideMlStatus();
+  } catch (err) {
+    console.warn("[ML] Image auto-detect unavailable:", err.message);
+    showMlStatus("AI image analysis unavailable. You can still submit the issue.", "warn");
+  }
+}
+
 fileInput?.addEventListener("change", () => {
-  if (fileInput.files[0]) setTimeout(runMlAnalysis, 500);
+  if (fileInput.files[0]) setTimeout(runImageAutoDetect, 300);
 });
 
 // -- GPS location -------------------------------------------------------------------
@@ -751,8 +800,7 @@ document.getElementById("reportForm")?.addEventListener("submit", async e => {
   const category = document.getElementById("f_category").value;
   const location = document.getElementById("locationInput").value.trim();
 
-  if (!title || !desc || !location) { alert("Please fill in all required fields."); return; }
-  if (desc.length < 20) { alert("Description must be at least 20 characters."); return; }
+  if (!title) { alert("Please enter an issue title."); return; }
 
   const btn     = document.getElementById("submitBtn");
   const btnText = document.getElementById("submitBtnText");
