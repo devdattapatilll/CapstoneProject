@@ -3,7 +3,7 @@
 
 # CivicTrack — AI-Powered Community Issue Tracker
 
-> Report civic issues like potholes, garbage, and road cracks. AI automatically detects and categorizes them from images and text.
+> Report civic issues like potholes, garbage, and road cracks. Our AI engine uses YOLO object detection and NLP text classification to automatically categorize issues from uploaded photos and descriptions.
 
 **Live Demo**: [devdatta-civictrack.vercel.app](https://devdatta-civictrack.vercel.app)
 **ML Backend**: Hosted on [Render](https://civictrack-ml.onrender.com/health)
