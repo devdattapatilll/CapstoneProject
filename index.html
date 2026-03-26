@@ -103,7 +103,7 @@
         <div id="aiSuggestionBox" class="ai-suggestion-box" style="display:none;">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
           <span>AI suggests: <strong id="aiCategoryText"></strong>
-            (<span id="aiConfText"></span>)</span>
+            <span id="aiConfText"></span></span>
           <button type="button" id="applyAiBtn" class="apply-ai-btn">Apply</button>
         </div>
         <select id="f_category" name="category" class="form-select">
@@ -455,8 +455,7 @@
           </div>
           {issue.mlCategory && (
             <span className="ml-badge">
-              AI: {issue.mlCategory} {issue.mlConfidence
-                ? `(${Math.round(issue.mlConfidence*100)}%)` : ""}
+              AI: {issue.mlCategory}
             </span>
           )}
           {expanded && issue.description && (
@@ -625,7 +624,7 @@ function showAiSuggestion(cat, conf, needsReview) {
   const catEl = document.getElementById("aiCategoryText");
   const confEl= document.getElementById("aiConfText");
   catEl.textContent  = cat;
-  confEl.textContent = Math.round(conf * 100) + "%" + (needsReview ? " — low confidence" : "");
+  confEl.textContent = "";
   box.style.display  = "flex";
 }
 
@@ -636,8 +635,7 @@ function showDetectionBadge(result) {
     el.textContent = "Detection unavailable: " + result.error;
     el.className   = "detection-badge detection-warn";
   } else if (result.has_detection) {
-    let msg = `${aiSuggestedCat || "Issue"} detected — ${result.count} instance(s), ${Math.round(result.confidence*100)}% confidence`;
-    if (result.crack_count) msg += `, ${result.crack_count} road crack(s)`;
+    let msg = `${aiSuggestedCat || "Issue"} detected`;
     el.textContent = msg;
     el.className   = "detection-badge detection-yes";
   } else {
