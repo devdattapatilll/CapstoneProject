@@ -159,7 +159,7 @@ def _run_yolo(model_name: str, img: Image.Image, conf: float = 0.25) -> dict:
 #  ROUTES
 # ══════════════════════════════════════════════════════════════════════════════
 
-# ── Health check ──────────────────────────────────────────────────────────────
+# ── Health / readiness check ──────────────────────────────────────────────────────────────
 @app.route("/health")
 def health():
     loaded = {k: os.path.exists(v) for k, v in MODEL_PATHS.items()}
