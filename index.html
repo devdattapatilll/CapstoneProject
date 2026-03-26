@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>CivicTrack — AI-Powered Community Issue Tracker</title>
-  <meta name="description" content="CivicTrack is an AI-powered community platform to report civic issues like potholes, garbage, waterlogging, and road cracks. Track progress and help your neighbourhood." />
+  <meta name="description" content="CivicTrack is an AI-powered community platform to report civic issues like potholes, garbage, and road cracks. Track progress and help your neighbourhood." />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
   <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
@@ -592,7 +592,10 @@ uploadZone.addEventListener("drop",      e => {
   e.preventDefault();
   uploadZone.classList.remove("drag-over");
   const f = e.dataTransfer.files?.[0];
-  if (f && f.type.startsWith("image/")) showPreview(f);
+  if (f && f.type.startsWith("image/")) {
+    showPreview(f);
+    setTimeout(runImageAutoDetect, 300);
+  }
 });
 
 // -- ML helpers ---------------------------------------------------------------------
