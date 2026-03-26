@@ -343,6 +343,7 @@ print("\n✓ Saved → models/classifier.pkl")
 # ── Quick demo ────────────────────────────────────────────────────────────────
 demo_inputs = [
     "Huge pothole near my house causing accidents",
+    "Deep cracks across the entire road surface near bridge",
     "Garbage not collected since three days in locality",
     "Water pipeline burst flooding the entire road",
     "No electricity in colony since yesterday night",
