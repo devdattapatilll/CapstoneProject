@@ -625,3 +625,5 @@ a:hover { text-decoration: underline; }
   outline: 2px solid var(--teal);
   outline-offset: 2px;
 }
+/* ── Smooth scroll ──────────────────────────────────────────────────────── */
+html { scroll-behavior: smooth; }
