@@ -383,7 +383,7 @@ def annotate():
         return jsonify({"error": str(e)}), 500
 
 
-# ── Entry point ───────────────────────────────────────────────────────────────
+# ── Server entry point ───────────────────────────────────────────────────────────────
 if __name__ == "__main__":
     _get_nlp()  # pre-load NLP (small, fast)
     # YOLO models load lazily on first request to save memory
