@@ -98,6 +98,17 @@ Response:
 
 ---
 
+
+### Python Requirements
+`
+flask
+flask-cors
+ultralytics
+scikit-learn
+nltk
+pillow
+gunicorn
+`
 ## Local Development
 
 ### Frontend
