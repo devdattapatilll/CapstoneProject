@@ -235,6 +235,14 @@ def detect():
                         "confidence": 0.0, "error": str(e)}), 500
 
 
+# ── Model-to-category display mapping ────────────────────────────────────────
+MODEL_DISPLAY_MAP = {
+    "pothole": "Roads",
+    "garbage": "Garbage",
+    "crack":   "Road Cracks",
+}
+
+
 # ── Full analysis (text + image) ─────────────────────────────────────────────
 @app.route("/analyze", methods=["POST"])
 def analyze():
@@ -264,25 +272,43 @@ def analyze():
                 "needs_review": conf < 0.65
             }
 
-    # 2 — Image detection (uses text-inferred category)
-    if img_b64 and response["text_result"]:
-        category   = response["text_result"]["category"]
-        model_name = CATEGORY_MODEL_MAP.get(category)
-        if model_name:
-            try:
-                img    = _decode_image(img_b64)
-                result = _run_yolo(model_name, img)
-                # Also run crack detection for Roads
-                if category == "Roads":
-                    cr = _run_yolo("crack", img)
-                    if cr.get("has_detection"):
-                        result["has_detection"]    = True
-                        result["crack_count"]      = cr["count"]
-                        result["crack_confidence"] = cr["confidence"]
-                response["image_result"] = result
-            except Exception as e:
-                log.exception("Image analysis error")
-                response["image_result"] = {"error": str(e)}
+    # 2 — Image detection: run ALL models and pick best
+    if img_b64:
+        try:
+            img = _decode_image(img_b64)
+            best_model = None
+            best_conf  = 0.0
+            best_count = 0
+            all_results = {}
+
+            for name in MODEL_PATHS:
+                res = _run_yolo(name, img)
+                all_results[name] = res
+                if res.get("has_detection") and res["confidence"] > best_conf:
+                    best_conf  = res["confidence"]
+                    best_model = name
+                    best_count = res["count"]
+
+            if best_model:
+                response["image_result"] = {
+                    "has_detection":    True,
+                    "detected_category": MODEL_DISPLAY_MAP.get(best_model, "Other"),
+                    "model":            best_model,
+                    "count":            best_count,
+                    "confidence":       round(best_conf, 3),
+                    "all_detections":   all_results,
+                }
+            else:
+                response["image_result"] = {
+                    "has_detection":    False,
+                    "detected_category": "Other",
+                    "count":            0,
+                    "confidence":       0.0,
+                    "all_detections":   all_results,
+                }
+        except Exception as e:
+            log.exception("Image analysis error")
+            response["image_result"] = {"error": str(e)}
 
     return jsonify(response)
 
@@ -291,9 +317,10 @@ def analyze():
 @app.route("/detect-all", methods=["POST"])
 def detect_all():
     """
-    Run all 4 YOLO models on a single image and return combined results.
+    Run all 3 YOLO models on a single image and return combined results
+    plus the auto-detected category.
     POST { "image_base64": "..." }
-    → { pothole: {...}, garbage: {...}, waterlog: {...}, crack: {...} }
+    → { pothole: {...}, garbage: {...}, crack: {...}, detected_category: "..." }
     """
     data    = request.json or {}
     img_b64 = data.get("image_base64", "")
@@ -301,10 +328,19 @@ def detect_all():
         return jsonify({"error": "No image provided"}), 400
 
     try:
-        img     = _decode_image(img_b64)
-        results = {}
+        img        = _decode_image(img_b64)
+        results    = {}
+        best_model = None
+        best_conf  = 0.0
+
         for name in MODEL_PATHS:
-            results[name] = _run_yolo(name, img)
+            res = _run_yolo(name, img)
+            results[name] = res
+            if res.get("has_detection") and res["confidence"] > best_conf:
+                best_conf  = res["confidence"]
+                best_model = name
+
+        results["detected_category"] = MODEL_DISPLAY_MAP.get(best_model, "Other")
         return jsonify(results)
     except Exception as e:
         log.exception("detect-all error")
