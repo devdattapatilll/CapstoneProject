@@ -168,6 +168,15 @@ python training/train_nlp.py
 
 ---
 
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Commit changes with descriptive messages
+4. Submit a pull request
+
+---
+
 ## License
 
 Capstone Project — © 2025–2026 CivicTrack
