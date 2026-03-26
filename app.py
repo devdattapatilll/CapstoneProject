@@ -1,13 +1,12 @@
 """
 CivicTrack ML Service
 ---------------------
-Serves 4 YOLO detection models + NLP text classifier via REST API.
+Serves 3 YOLO detection models + NLP text classifier via REST API.
 
 Models (place trained .pt files in ./models/):
-  models/pothole.pt   – Roads / pothole detection       (YOLOv12)
-  models/garbage.pt   – Garbage / waste detection        (YOLOv12)
-  models/waterlog.pt  – Water-logging / flood detection  (YOLOv12)
-  models/crack.pt     – Road crack detection             (YOLOv12)
+  models/pothole.pt   – Roads / pothole detection       (YOLO)
+  models/garbage.pt   – Garbage / waste detection        (YOLO)
+  models/crack.pt     – Road crack detection             (YOLO)
 
 NLP model:
   models/classifier.pkl – trained by train_nlp.py
@@ -36,7 +35,6 @@ CORS(app)  # Allow requests from Vercel frontend
 MODEL_PATHS = {
     "pothole":  os.environ.get("MODEL_POTHOLE",  "models/pothole.pt"),
     "garbage":  os.environ.get("MODEL_GARBAGE",  "models/garbage.pt"),
-    "waterlog": os.environ.get("MODEL_WATERLOG", "models/waterlog.pt"),
     "crack":    os.environ.get("MODEL_CRACK",    "models/crack.pt"),
 }
 NLP_PATH = os.environ.get("NLP_MODEL", "models/classifier.pkl")
@@ -45,9 +43,7 @@ NLP_PATH = os.environ.get("NLP_MODEL", "models/classifier.pkl")
 CATEGORY_MODEL_MAP = {
     "Roads":         "pothole",
     "Garbage":       "garbage",
-    "Water Leakage": "waterlog",
     "Road Cracks":   "crack",
-    "Electricity":   None,        # text-only category
     "Other":         None,
 }
 
