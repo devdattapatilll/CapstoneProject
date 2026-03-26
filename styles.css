@@ -614,3 +614,9 @@ a:hover { text-decoration: underline; }
   .stats-grid { grid-template-columns: 1fr; }
   h2 { font-size: 1.4rem; }
 }
+
+/* ── Print styles ────────────────────────────────────────────────────────── */
+@media print {
+  .sidebar, .mobile-header, .footer, .report-cta-btn { display: none !important; }
+  .main-content { margin-left: 0 !important; }
+}
