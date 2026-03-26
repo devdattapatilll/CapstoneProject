@@ -620,3 +620,8 @@ a:hover { text-decoration: underline; }
   .sidebar, .mobile-header, .footer, .report-cta-btn { display: none !important; }
   .main-content { margin-left: 0 !important; }
 }
+/* ── Focus accessibility ────────────────────────────────────────────────── */
+*:focus-visible {
+  outline: 2px solid var(--teal);
+  outline-offset: 2px;
+}
