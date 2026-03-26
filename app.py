@@ -1,7 +1,7 @@
 """
 CivicTrack ML Service
 ---------------------
-Serves 3 YOLO detection models + NLP text classifier via REST API.
+Serves three YOLO detection models + NLP text classifier via REST API.
 
 Models (place trained .pt files in ./models/):
   models/pothole.pt   – Roads / pothole detection       (YOLO)
