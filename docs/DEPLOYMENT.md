@@ -3,17 +3,22 @@
 ## Project Structure
 
 ```
-CapstoneProject/
+CivicTracker/
 ├── index.html              ← Frontend (deploy to Vercel)
 ├── styles.css              ← Styles
 ├── app.py                  ← Flask ML backend (deploy to Render)
-├── train_nlp.py            ← NLP classifier training
-├── TRAIN_IN_COLAB.py       ← YOLO training instructions
 ├── requirements.txt        ← Python dependencies
 ├── Procfile                ← Render start command
+├── vercel.json             ← Vercel deployment config
+├── .vercelignore           ← Files excluded from Vercel deploy
 ├── .gitignore
-├── DEPLOYMENT.md           ← This file
-└── models/                 ← Trained models (created during training)
+├── training/
+│   ├── train_nlp.py        ← NLP classifier training
+│   ├── train_yolo.py       ← YOLO training (local)
+│   └── train_colab.py      ← YOLO training (Google Colab)
+├── docs/
+│   └── DEPLOYMENT.md       ← This file
+└── models/                 ← Trained models
     ├── pothole.pt
     ├── garbage.pt
     ├── crack.pt
@@ -58,7 +63,7 @@ CapstoneProject/
 
 ```bash
 pip install -r requirements.txt
-python train_nlp.py
+python training/train_nlp.py
 # Creates: models/classifier.pkl
 ```
 
@@ -68,8 +73,8 @@ python train_nlp.py
 
 1. Open [Google Colab](https://colab.research.google.com)
 2. Go to Runtime → Change runtime type → **T4 GPU**
-3. Upload `TRAIN_IN_COLAB.py` and `train_nlp.py` to Colab
-4. Follow the cell-by-cell instructions in `TRAIN_IN_COLAB.py`
+3. Upload `training/train_colab.py` and `training/train_nlp.py` to Colab
+4. Follow the cell-by-cell instructions in `train_colab.py`
 5. Download the final zip containing all `.pt` files
 6. Place them in `models/` folder
 
