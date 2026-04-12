@@ -8,7 +8,7 @@ Run locally, in Google Colab, or on any machine with Python 3.8+:
 
 Output: models/classifier.pkl
 
-Categories (must match UI dropdown exactly):
+Categories (must match UI dropdown and app.py exactly):
   Roads | Garbage | Road Cracks | Other
 """
 
@@ -251,10 +251,11 @@ scores = cross_val_score(base_pipeline, df["text"], df["category"],
 print(f"\n5-Fold CV Macro F1: {scores.mean():.3f} ± {scores.std():.3f}")
 
 # ── Save ──────────────────────────────────────────────────────────────────────
+MODEL_OUTPUT = os.path.join("models", "classifier.pkl")
 os.makedirs("models", exist_ok=True)
-with open("models/classifier.pkl", "wb") as f:
+with open(MODEL_OUTPUT, "wb") as f:
     pickle.dump(pipeline, f)
-print("\n✓ Saved → models/classifier.pkl")
+print(f"\n✓ Saved → {MODEL_OUTPUT}")
 
 # ── Quick demo ────────────────────────────────────────────────────────────────
 demo_inputs = [
