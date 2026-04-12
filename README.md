@@ -5,8 +5,8 @@
 
 > Report civic issues like potholes, garbage, and road cracks. Our AI engine uses YOLO object detection and NLP text classification to automatically categorize issues from uploaded photos and descriptions.
 
-**Live Demo**: [devdatta-civictrack.vercel.app](https://devdatta-civictrack.vercel.app)
-**ML Backend**: Hosted on [Render](https://civictrack-ml.onrender.com/health)
+**Live Demo**: [devdatta-civictrack.vercel.app](https://devdatta-civictrack.vercel.app)  
+**ML Backend**: [civictrack-ml.onrender.com](https://civictrack-ml.onrender.com/health)
 
 ---
 
@@ -59,12 +59,13 @@ The platform follows a client-server architecture:
 ## Project Structure
 
 ```
-CapstoneProject/
+CivicTracker/
 ├── index.html          # Single-page application (React + vanilla JS)
 ├── styles.css          # Complete design system
 ├── app.py              # Flask ML service (3 YOLO + NLP)
 ├── requirements.txt    # Python dependencies
 ├── Procfile            # Render deployment config
+├── vercel.json         # Vercel deployment config
 ├── models/
 │   ├── pothole.pt      # YOLO pothole detection model
 │   ├── garbage.pt      # YOLO garbage detection model
@@ -74,8 +75,8 @@ CapstoneProject/
 │   ├── train_nlp.py    # NLP classifier training script
 │   ├── train_yolo.py   # YOLO training script (local)
 │   └── train_colab.py  # YOLO training script (Google Colab)
-├── docs/               # Documentation and reports
-└── assets/             # Static assets
+├── docs/               # Documentation and deployment guides
+└── assets/             # Static assets (architecture diagrams)
 ```
 
 ---
@@ -110,16 +111,18 @@ Response:
 ---
 
 
-### Python Requirements
-`
+```
 flask
 flask-cors
-ultralytics
+ultralytics>=8.3.0
 scikit-learn
 nltk
 pillow
+numpy
+pandas
+opencv-python-headless
 gunicorn
-`
+```
 ## Local Development
 
 ### Frontend
@@ -181,7 +184,7 @@ python training/train_nlp.py
 
 ## License
 
-Capstone Project — © 2025–2026 CivicTrack
+Capstone Project — © 2026 CivicTrack
 
 
 ## Acknowledgments
