@@ -14,14 +14,14 @@ vercel login
 
 ### Step 3: Deploy from Project Directory
 ```bash
-cd "c:\Projects Uploaded on github\CapstoneProject"
+cd CivicTracker
 vercel --prod
 ```
 
 ## Manual Deploy via Dashboard
 
 1. Go to [vercel.com/new](https://vercel.com/new)
-2. Import Git Repository: `devdattapatilll/CapstoneProject`
+2. Import Git Repository: `devdattapatilll/CivicTracker`
 3. Framework Preset: **Other** (Static)
 4. Root Directory: `./`
 5. Build Command: *(leave empty)*
@@ -50,7 +50,7 @@ In Vercel Dashboard → Project Settings → Environment Variables:
 
 ## Project Structure for Vercel
 ```
-CapstoneProject/
+CivicTracker/
 ├── index.html          ← Entry point (required)
 ├── styles.css          ← Static asset
 ├── vercel.json         ← Vercel config
