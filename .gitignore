@@ -1,0 +1,31 @@
+__pycache__/
+*.pyc
+.env
+venv/
+.venv/
+.vscode/
+*.log
+.gemini/
+
+# Training artifacts (large, regeneratable)
+datasets/
+runs/
+civictrack_training/
+yolov8n.pt
+yolov12s.pt
+
+# Old model files (superseded)
+models/Yolocrack.pt
+models/Yolopotholes.pt
+models/yologarbage.pt
+models/waterlogging.pt
+models/waterlog.pt
+
+# Temp files
+test_output.txt
+test_results.txt
+test_backend.py
+
+# OS files
+.DS_Store
+Thumbs.db

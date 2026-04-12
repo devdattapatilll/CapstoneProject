@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CivicTrack — AI-Powered Community Issue Tracker</title>
+  <meta name="description" content="CivicTrack uses AI-powered YOLO detection and NLP classification to help communities report and track civic issues like potholes, garbage, and road cracks in real time." />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body>
+
+<!-- ======================= SIDEBAR NAVIGATION ======================= -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-logo">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      <span class="sidebar-title">CivicTrack</span>
+    </div>
+  </div>
+  <nav class="sidebar-nav">
+    <button class="sidebar-link active" data-page="home" id="nav-home">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <span>Home</span>
+    </button>
+    <button class="sidebar-link" data-page="report" id="nav-report">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+      <span>Report Issue</span>
+    </button>
+    <button class="sidebar-link" data-page="how-it-works" id="nav-how">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      <span>How It Works</span>
+    </button>
+    <button class="sidebar-link" data-page="team" id="nav-team">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      <span>Team</span>
+    </button>
+  </nav>
+  <div class="sidebar-footer">
+    <div id="sidebar-user"></div>
+    <button class="sidebar-link sidebar-signin" id="sidebarSigninBtn">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+      <span>Sign In</span>
+    </button>
+  </div>
+</aside>
+
+<!-- Mobile top bar -->
+<header class="mobile-header" id="mobileHeader">
+  <button class="hamburger" id="hamburgerBtn" aria-label="Toggle sidebar navigation">
+    <span></span><span></span><span></span>
+  </button>
+  <span class="mobile-title">CivicTrack</span>
+</header>
+
+<!-- ======================= MAIN CONTENT ======================= -->
+<main class="main-content" id="mainContent">
+
+  <!-- ====== PAGE: HOME ====== -->
+  <section class="page active" id="page-home">
+    <div class="page-header">
+      <h2>Dashboard</h2>
+      <p class="page-subtitle">Real-time overview of civic issues in your community</p>
+      <button class="report-cta-btn" onclick="switchPage('report')" id="homeReportBtn">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+        Report an Issue
+      </button>
+    </div>
+    <div id="stats-root"></div>
+    <div id="categories-title" style="margin-top:2rem;"></div>
+    <!-- React mounts issue cards here -->
+  </section>
+
+  <!-- ====== PAGE: REPORT ISSUE ====== -->
+  <section class="page" id="page-report">
+    <div class="page-header">
+      <h2>Report an Issue</h2>
+      <p class="page-subtitle">Describe the civic issue — our AI will detect and categorize it automatically</p>
+    </div>
+
+    <form class="report-form" id="reportForm" autocomplete="off">
+
+      <!-- Title -->
+      <div class="form-group">
+        <label class="form-label">Issue Title <span class="required">*</span></label>
+        <input id="f_title" name="title" type="text" class="form-input"
+               placeholder="e.g. Large pothole near market road" required minlength="5">
+      </div>
+
+      <!-- Description -->
+      <div class="form-group">
+        <label class="form-label">Description <span class="form-hint">(optional)</span></label>
+        <textarea id="f_desc" name="description" class="form-textarea"
+                  placeholder="Describe the issue in detail — location, severity, how long it has been present..."></textarea>
+      </div>
+
+      <!-- Category -->
+      <div class="form-group">
+        <label class="form-label">Category</label>
+        <div id="aiSuggestionBox" class="ai-suggestion-box" style="display:none;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+          <span>AI suggests: <strong id="aiCategoryText"></strong>
+            <span id="aiConfText"></span></span>
+          <button type="button" id="applyAiBtn" class="apply-ai-btn">Apply</button>
+        </div>
+        <select id="f_category" name="category" class="form-select">
+          <option value="Roads">Roads (Potholes)</option>
+          <option value="Garbage">Garbage</option>
+          <option value="Road Cracks">Road Cracks</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+
+      <!-- Location -->
+      <div class="form-group">
+        <label class="form-label">Location <span class="form-hint">(optional)</span></label>
+        <input id="locationInput" name="location" type="text" class="form-input"
+               placeholder="Search location or use GPS...">
+        <div id="suggestions" class="suggestions-box"></div>
+        <button type="button" id="gpsBtn" class="gps-btn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="22" y1="12" x2="18" y2="12"/><line x1="6" y1="12" x2="2" y2="12"/><line x1="12" y1="6" x2="12" y2="2"/><line x1="12" y1="22" x2="12" y2="18"/></svg>
+          Use GPS location
+        </button>
+      </div>
+
+      <!-- Image Upload -->
+      <div class="form-group">
+        <label class="form-label">Upload Image
+          <span class="form-hint">(optional — AI will analyze the image)</span>
+        </label>
+        <div class="upload-zone" id="uploadZone">
+          <input type="file" id="imageFileInput" accept="image/*" style="display:none">
+          <div id="uploadPromptText" class="upload-prompt">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            <div class="upload-text">Click or drag and drop</div>
+            <div class="upload-hint">JPG, PNG, WEBP — max 5 MB</div>
+          </div>
+          <img id="imagePreview" alt="Preview" style="display:none;">
+          <button type="button" id="removeImageBtn" class="remove-img-btn" style="display:none;">Remove</button>
+        </div>
+        <div id="detectionResult" class="detection-badge" style="display:none;"></div>
+      </div>
+
+      <!-- Status message for ML service -->
+      <div id="mlStatusMsg" class="ml-status-msg" style="display:none;"></div>
+
+      <!-- Submit -->
+      <button class="btn-submit" id="submitBtn" type="submit">
+        <span id="submitBtnText">Submit Issue</span>
+      </button>
+
+    </form>
+  </section>
+
+  <!-- ====== PAGE: HOW IT WORKS ====== -->
+  <section class="page" id="page-how-it-works">
+    <div class="page-header">
+      <h2>How It Works</h2>
+      <p class="page-subtitle">CivicTrack uses YOLO detection and NLP classification to automatically identify and categorize civic issues</p>
+    </div>
+
+    <div class="how-section">
+      <h3>Workflow</h3>
+      <div class="workflow-steps">
+        <div class="workflow-step">
+          <div class="step-number">1</div>
+          <div class="step-content">
+            <h4>Report</h4>
+            <p>Capture a photo of the issue, describe the problem, and pin your GPS location. The entire process takes under a minute. No account required to browse.</p>
+          </div>
+        </div>
+        <div class="workflow-connector"></div>
+        <div class="workflow-step">
+          <div class="step-number">2</div>
+          <div class="step-content">
+            <h4>AI Analysis</h4>
+            <p>Three YOLO object detection models scan the uploaded image for potholes, garbage, or road cracks. The system automatically determines the issue category from the image. A separate TF-IDF + LinearSVC classifier categorizes text descriptions into matching categories.</p>
+          </div>
+        </div>
+        <div class="workflow-connector"></div>
+        <div class="workflow-step">
+          <div class="step-number">3</div>
+          <div class="step-content">
+            <h4>Track and Resolve</h4>
+            <p>Issues are stored in the database with real-time status tracking. Administrators can update issue status from Pending to In Progress to Resolved.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="how-section">
+      <h3>System Architecture</h3>
+      <div class="architecture-grid">
+        <div class="arch-card">
+          <div class="arch-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+          </div>
+          <h4>Frontend</h4>
+          <p class="arch-tech">Vercel (Static Hosting)</p>
+          <ul class="arch-list">
+            <li>HTML5 + CSS3 single-page application</li>
+            <li>React 18 for dynamic components</li>
+            <li>Firebase SDK for auth and database</li>
+            <li>Responsive sidebar navigation</li>
+          </ul>
+        </div>
+        <div class="arch-card">
+          <div class="arch-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg>
+          </div>
+          <h4>ML Backend</h4>
+          <p class="arch-tech">Render (Python / Flask)</p>
+          <ul class="arch-list">
+            <li>3 YOLO object detection models</li>
+            <li>TF-IDF + LinearSVC text classifier</li>
+            <li>REST API with 6 endpoints</li>
+            <li>Gunicorn production server</li>
+          </ul>
+        </div>
+        <div class="arch-card">
+          <div class="arch-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+          </div>
+          <h4>Database</h4>
+          <p class="arch-tech">Firebase (Google Cloud)</p>
+          <ul class="arch-list">
+            <li>Authentication (Google + Email)</li>
+            <li>Firestore NoSQL document store</li>
+            <li>Cloud Storage for uploaded images</li>
+            <li>Real-time data synchronization</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="how-section">
+      <h3>AI Models</h3>
+      <div class="models-table-wrap">
+        <table class="models-table">
+          <thead>
+            <tr>
+              <th>Model</th>
+              <th>Architecture</th>
+              <th>Purpose</th>
+              <th>Input</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>pothole.pt</td><td>YOLO</td><td>Pothole and road damage detection</td><td>Image</td></tr>
+            <tr><td>garbage.pt</td><td>YOLO</td><td>Waste and overflowing bin detection</td><td>Image</td></tr>
+            <tr><td>crack.pt</td><td>YOLO</td><td>Road crack and surface damage detection</td><td>Image</td></tr>
+            <tr><td>classifier.pkl</td><td>TF-IDF + LinearSVC</td><td>Text classification into 3 categories + Other</td><td>Text</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== PAGE: TEAM ====== -->
+  <section class="page" id="page-team">
+    <div class="page-header">
+      <h2>Team</h2>
+      <p class="page-subtitle">Meet the people behind CivicTrack</p>
+    </div>
+    <div class="team-grid">
+      <div class="team-card">
+        <div class="team-avatar"><span>SS</span></div>
+        <h4>Sarthak Sant</h4>
+        <p class="team-role">Backend Developer, UI/UX Design</p>
+        <p class="team-desc">Flask API development, design system architecture, and interface design.</p>
+      </div>
+      <div class="team-card">
+        <div class="team-avatar"><span>MR</span></div>
+        <h4>Mayank Rawat</h4>
+        <p class="team-role">Authentication and Admin Module</p>
+        <p class="team-desc">Firebase Authentication integration, admin panel functionality, and access control.</p>
+      </div>
+      <div class="team-card">
+        <div class="team-avatar"><span>RP</span></div>
+        <h4>Rizul Pathania</h4>
+        <p class="team-role">Frontend Developer</p>
+        <p class="team-desc">React components, responsive layouts, and cross-browser compatibility.</p>
+      </div>
+      <div class="team-card">
+        <div class="team-avatar"><span>DP</span></div>
+        <h4>Devdatta Patil</h4>
+        <p class="team-role">ML Models and Deployment</p>
+        <p class="team-desc">YOLO model training, NLP classifier development, CI/CD pipeline, and cloud deployment on Render and Vercel.</p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="footer">&copy; 2025&ndash;2026 CivicTrack &mdash; AI-Augmented Civic Reporting Platform &middot; Capstone Project</footer>
+
+<!-- ============================================================
+     FIREBASE MODULE
+     ============================================================ -->
+<script type="module">
+  import { initializeApp }    from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+  import { getAuth, GoogleAuthProvider, signInWithPopup, signOut as fbSignOut,
+           onAuthStateChanged as fbOnAuthChanged,
+           signInWithEmailAndPassword, createUserWithEmailAndPassword }
+    from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
+  import { getFirestore, collection, addDoc, doc, updateDoc, deleteDoc,
+           onSnapshot, query, orderBy, serverTimestamp }
+    from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+  import { getStorage, ref as storageRef, uploadBytes, getDownloadURL }
+    from "https://www.gstatic.com/firebasejs/12.6.0/firebase-storage.js";
+
+  // Replace "NA" with your actual Firebase API key from the Firebase console
+  // (Project Settings → General → Your apps → Web app → SDK setup and config)
+  const firebaseConfig = {
+    apiKey:            "AIzaSyBxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    authDomain:        "capstone-project-190b5.firebaseapp.com",
+    projectId:         "capstone-project-190b5",
+    storageBucket:     "capstone-project-190b5.firebasestorage.app",
+    messagingSenderId: "282756742599",
+    appId:             "1:282756742599:web:c159bb2876c16e2c506de2",
+    measurementId:     "G-1R1YQB7V3J"
+  };
+
+  const app     = initializeApp(firebaseConfig);
+  const auth    = getAuth(app);
+  const db      = getFirestore(app);
+  const storage = getStorage(app);
+
+  function computeStats(arr) {
+    const s = { total: arr.length, pending: 0, progress: 0, resolved: 0 };
+    arr.forEach(i => {
+      const st = (i.status || "").toLowerCase();
+      if (st === "pending") s.pending++;
+      else if (st === "in progress" || st === "progress") s.progress++;
+      else if (st === "resolved") s.resolved++;
+    });
+    return s;
+  }
+
+  // Upload image to Firebase Storage and return the public download URL.
+  // Falls back to compressed base64 stored in Firestore if Storage upload fails.
+  async function uploadImageToStorage(file) {
+    if (!file) return null;
+
+    // Compress image client-side (max 900 px, JPEG 0.75 quality)
+    const compressedBlob = await new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => {
+        const MAX = 900;
+        let w = img.width, h = img.height;
+        if (w > MAX || h > MAX) {
+          if (w > h) { h = Math.round(h * MAX / w); w = MAX; }
+          else       { w = Math.round(w * MAX / h); h = MAX; }
+        }
+        const canvas = document.createElement("canvas");
+        canvas.width = w; canvas.height = h;
+        canvas.getContext("2d").drawImage(img, 0, 0, w, h);
+        canvas.toBlob(b => b ? resolve(b) : reject(new Error("Canvas toBlob failed")),
+                      "image/jpeg", 0.75);
+      };
+      img.onerror = reject;
+      img.src = URL.createObjectURL(file);
+    });
+
+    try {
+      // Upload to Firebase Storage: images/<timestamp>_<filename>
+      const filename = `images/${Date.now()}_${file.name.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
+      const fileRef  = storageRef(storage, filename);
+      const snap     = await uploadBytes(fileRef, compressedBlob,
+                                         { contentType: "image/jpeg" });
+      const url      = await getDownloadURL(snap.ref);
+      return url;
+    } catch (storageErr) {
+      console.warn("[Firebase] Storage upload failed, falling back to base64:", storageErr.message);
+      // Fallback: store as base64 in Firestore (compressed, max 700 px)
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => {
+          const MAX = 700;
+          let w = img.width, h = img.height;
+          if (w > MAX || h > MAX) {
+            if (w > h) { h = Math.round(h * MAX / w); w = MAX; }
+            else       { w = Math.round(w * MAX / h); h = MAX; }
+          }
+          const canvas = document.createElement("canvas");
+          canvas.width = w; canvas.height = h;
+          canvas.getContext("2d").drawImage(img, 0, 0, w, h);
+          resolve(canvas.toDataURL("image/jpeg", 0.5));
+        };
+        img.onerror = reject;
+        img.src = URL.createObjectURL(file);
+      });
+    }
+  }
+
+  window.firebaseHelpers = {
+    addIssue: async (data) => {
+      const ref = await addDoc(collection(db, "issues"), {
+        ...data,
+        status:    "Pending",
+        upvotes:   0,
+        comments:  0,
+        createdAt: serverTimestamp()
+      });
+      return ref.id;
+    },
+    uploadImage: uploadImageToStorage,
+    subscribeIssues: (cb) => {
+      const q = query(collection(db, "issues"), orderBy("createdAt", "desc"));
+      return onSnapshot(q, snap => {
+        const arr = snap.docs.map(d => {
+          const data = d.data();
+          return { id: d.id, ...data,
+            createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : null };
+        });
+        cb(arr, computeStats(arr));
+      }, err => console.error("subscribeIssues:", err));
+    },
+    updateIssueStatus: async (id, status) => updateDoc(doc(db, "issues", id), { status }),
+    signInWithGoogle: () => signInWithPopup(auth, new GoogleAuthProvider()),
+    signOut:          () => fbSignOut(auth),
+    signInWithEmail:  (e, p) => signInWithEmailAndPassword(auth, e, p),
+    signUpWithEmail:  (e, p) => createUserWithEmailAndPassword(auth, e, p),
+    onAuthStateChanged: cb => fbOnAuthChanged(auth, cb),
+    _auth: auth, _db: db, _storage: storage
+  };
+  console.log("[Firebase] helpers ready — Storage enabled");
+</script>
+
+<!-- ============================================================
+     REACT APP (Stats + Issues on Home page)
+     ============================================================ -->
+<script type="text/babel">
+  const CATS_DEFAULT  = ["All","Roads","Garbage","Road Cracks","Other"];
+  const ADMIN_EMAILS  = ["sarthaksant2004@gmail.com"];
+
+  function Stats({ stats }) {
+    const items = [
+      ["Total Issues", stats?.total||0, "total"],
+      ["Pending",      stats?.pending||0, "pending"],
+      ["In Progress",  stats?.progress||0, "progress"],
+      ["Resolved",     stats?.resolved||0, "resolved"]
+    ];
+    return (
+      <div className="stats-grid">
+        {items.map(([label,val,cls]) => (
+          <div key={label} className={`stat-card stat-${cls}`}>
+            <div className="stat-value">{val}</div>
+            <div className="stat-label">{label}</div>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  function CategoryFilter({ cats, active, onChange }) {
+    return (
+      <div className="categories">
+        {cats.map(c => (
+          <button key={c} className={`category-btn ${active===c?"active":""}`}
+                  onClick={() => onChange(c)}>
+            {c}
+          </button>
+        ))}
+      </div>
+    );
+  }
+
+  function IssueCard({ issue, isAdmin, onUpdate }) {
+    const [expanded, setExpanded] = React.useState(false);
+    const statusClass = issue.status === "Pending"     ? "status-pending"
+                      : issue.status === "In Progress" ? "status-progress"
+                      : "status-resolved";
+    const timeAgo = issue.createdAt ? getTimeAgo(issue.createdAt) : "";
+
+    return (
+      <div className="issue-card" onClick={() => setExpanded(!expanded)}>
+        <div className="issue-image">
+          {issue.image
+            ? <img src={issue.image} alt={issue.title} loading="lazy" />
+            : <div className="issue-image-placeholder">No image</div>}
+          <span className={`issue-status ${statusClass}`}>{issue.status}</span>
+        </div>
+        <div className="issue-content">
+          <h4 className="issue-title">{issue.title}</h4>
+          <div className="issue-meta">
+            <span>{issue.location}</span>
+            {timeAgo && <span>{timeAgo}</span>}
+          </div>
+          {issue.mlCategory && (
+            <span className="ml-badge">
+              AI: {issue.mlCategory}
+            </span>
+          )}
+          {expanded && issue.description && (
+            <div className="issue-description">{issue.description}</div>
+          )}
+          <div className="issue-footer">
+            <span className="issue-category-tag">{issue.category}</span>
+            {isAdmin && (
+              <div className="admin-actions">
+                <button className="btn-small" onClick={(e)=>{e.stopPropagation();onUpdate(issue.id,"In Progress")}}>In Progress</button>
+                <button className="btn-small btn-resolve" onClick={(e)=>{e.stopPropagation();onUpdate(issue.id,"Resolved")}}>Resolve</button>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  function getTimeAgo(date) {
+    const diff = Math.floor((Date.now() - date.getTime()) / 1000);
+    if (diff < 60) return "just now";
+    if (diff < 3600) return `${Math.floor(diff/60)}m ago`;
+    if (diff < 86400) return `${Math.floor(diff/3600)}h ago`;
+    if (diff < 604800) return `${Math.floor(diff/86400)}d ago`;
+    return date.toLocaleDateString();
+  }
+
+  function App() {
+    const [issues,   setIssues]   = React.useState([]);
+    const [stats,    setStats]    = React.useState({total:0,pending:0,progress:0,resolved:0});
+    const [activeCat,setActiveCat]= React.useState("All");
+    const [cats,     setCats]     = React.useState(CATS_DEFAULT);
+    const [isAdmin,  setIsAdmin]  = React.useState(false);
+
+    React.useEffect(() => {
+      const unsubAuth = window.firebaseHelpers?.onAuthStateChanged?.(u => {
+        setIsAdmin(u && ADMIN_EMAILS.includes(u.email));
+      });
+      const unsubIssues = window.firebaseHelpers?.subscribeIssues?.((arr, st) => {
+        setIssues(arr);
+        setStats(st);
+        const cs = new Set(CATS_DEFAULT);
+        arr.forEach(i => i.category && cs.add(i.category));
+        setCats([...cs]);
+      });
+      return () => { unsubAuth?.(); unsubIssues?.(); };
+    }, []);
+
+    const filtered = issues.filter(i => activeCat === "All" || i.category === activeCat);
+
+    return (
+      <>
+        <Stats stats={stats} />
+        <CategoryFilter cats={cats} active={activeCat} onChange={setActiveCat} />
+        <h3 className="section-title" style={{marginTop:"2rem"}}>Recent Issues</h3>
+        <div id="issues-section" className="issues-grid">
+          {filtered.length === 0
+            ? <p className="empty-state">No issues found in this category.</p>
+            : filtered.map(i => (
+                <IssueCard key={i.id} issue={i} isAdmin={isAdmin}
+                  onUpdate={(id,s) => window.firebaseHelpers?.updateIssueStatus?.(id,s)} />
+              ))}
+        </div>
+      </>
+    );
+  }
+
+  // Mount
+  (function mount() {
+    const root = document.createElement("div");
+    root.id = "civictrack-app-root";
+    const target = document.getElementById("categories-title");
+    if (target) target.replaceWith(root);
+    else {
+      const statsRoot = document.getElementById("stats-root");
+      if (statsRoot) statsRoot.replaceWith(root);
+    }
+    ReactDOM.createRoot(root).render(<App />);
+  })();
+</script>
+
+<!-- ============================================================
+     ML SERVICE INTEGRATION + FORM LOGIC
+     ============================================================ -->
+<script>
+// -- Config -------------------------------------------------------------------------
+const ML_SERVICE_URL = "https://civictrack-ml.onrender.com";
+
+// -- State --------------------------------------------------------------------------
+let selectedFile       = null;
+let aiSuggestedCat     = null;
+let aiSuggestedConf    = 0;
+let detectionResult    = null;
+
+// -- Image upload zone --------------------------------------------------------------
+const uploadZone    = document.getElementById("uploadZone");
+const fileInput     = document.getElementById("imageFileInput");
+const previewImg    = document.getElementById("imagePreview");
+const promptText    = document.getElementById("uploadPromptText");
+const removeBtn     = document.getElementById("removeImageBtn");
+
+function showPreview(file) {
+  if (!file) return;
+  selectedFile = file;
+  const url = URL.createObjectURL(file);
+  previewImg.src = url;
+  previewImg.style.display  = "block";
+  promptText.style.display  = "none";
+  removeBtn.style.display   = "block";
+  uploadZone.classList.add("has-image");
+}
+
+function clearImage() {
+  selectedFile              = null;
+  previewImg.src            = "";
+  previewImg.style.display  = "none";
+  promptText.style.display  = "block";
+  removeBtn.style.display   = "none";
+  fileInput.value           = "";
+  uploadZone.classList.remove("has-image");
+  document.getElementById("detectionResult").style.display = "none";
+  detectionResult = null;
+}
+
+uploadZone.addEventListener("click",  e => { if (e.target !== removeBtn) fileInput.click(); });
+fileInput.addEventListener("change",  ()=> { if (fileInput.files[0]) showPreview(fileInput.files[0]); });
+removeBtn.addEventListener("click",   e => { e.stopPropagation(); clearImage(); });
+
+uploadZone.addEventListener("dragover",  e => { e.preventDefault(); uploadZone.classList.add("drag-over"); });
+uploadZone.addEventListener("dragleave", ()=> uploadZone.classList.remove("drag-over"));
+uploadZone.addEventListener("drop",      e => {
+  e.preventDefault();
+  uploadZone.classList.remove("drag-over");
+  const f = e.dataTransfer.files?.[0];
+  if (f && f.type.startsWith("image/")) {
+    showPreview(f);
+    setTimeout(runImageAutoDetect, 300);
+  }
+});
+
+// -- ML helpers ---------------------------------------------------------------------
+async function fileToBase64(file) {
+  return new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload  = () => res(r.result);
+    r.onerror = rej;
+    r.readAsDataURL(file);
+  });
+}
+
+function showMlStatus(msg, type) {
+  const el = document.getElementById("mlStatusMsg");
+  el.textContent = msg;
+  el.className = "ml-status-msg ml-status-" + type;
+  el.style.display = "block";
+}
+function hideMlStatus() {
+  document.getElementById("mlStatusMsg").style.display = "none";
+}
+
+function showAiSuggestion(cat, conf, needsReview) {
+  aiSuggestedCat  = cat;
+  aiSuggestedConf = conf;
+  const box   = document.getElementById("aiSuggestionBox");
+  const catEl = document.getElementById("aiCategoryText");
+  const confEl= document.getElementById("aiConfText");
+  catEl.textContent  = cat;
+  confEl.textContent = "";
+  box.style.display  = "flex";
+}
+
+function showDetectionBadge(result) {
+  const el = document.getElementById("detectionResult");
+  if (!result) { el.style.display = "none"; return; }
+  if (result.error) {
+    el.textContent = "Detection unavailable: " + result.error;
+    el.className   = "detection-badge detection-warn";
+  } else if (result.has_detection) {
+    let msg = `${aiSuggestedCat || "Issue"} detected`;
+    el.textContent = msg;
+    el.className   = "detection-badge detection-yes";
+  } else {
+    el.textContent = "No defect automatically detected — complaint is still recorded";
+    el.className   = "detection-badge detection-no";
+  }
+  el.style.display = "block";
+}
+
+async function runMlAnalysis() {
+  const title = document.getElementById("f_title").value.trim();
+  const desc  = document.getElementById("f_desc").value.trim();
+  const text  = `${title} ${desc}`.trim();
+  if (!text) return;
+
+  try {
+    showMlStatus("Connecting to AI service (this may take up to 60 seconds on first use)...", "info");
+    const payload = { text };
+    if (selectedFile) payload.image_base64 = await fileToBase64(selectedFile);
+
+    const resp = await fetch(`${ML_SERVICE_URL}/analyze`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body:   JSON.stringify(payload),
+      signal: AbortSignal.timeout(90000)
+    });
+
+    if (!resp.ok) throw new Error(`ML service returned ${resp.status}`);
+    const data = await resp.json();
+
+    if (data.text_result) {
+      showAiSuggestion(data.text_result.category,
+                       data.text_result.confidence,
+                       data.text_result.needs_review);
+    }
+    if (data.image_result) {
+      detectionResult = data.image_result;
+      showDetectionBadge(data.image_result);
+    }
+    hideMlStatus();
+  } catch (err) {
+    console.warn("[ML] Service unavailable:", err.message);
+    showMlStatus("AI service is currently unavailable. Your issue will still be submitted.", "warn");
+  }
+}
+
+// Apply AI suggestion
+document.getElementById("applyAiBtn")?.addEventListener("click", () => {
+  if (!aiSuggestedCat) return;
+  const sel = document.getElementById("f_category");
+  for (let i = 0; i < sel.options.length; i++) {
+    if (sel.options[i].value === aiSuggestedCat) { sel.selectedIndex = i; break; }
+  }
+});
+
+// Debounced ML analysis
+let mlDebounce;
+document.getElementById("f_desc")?.addEventListener("input", () => {
+  clearTimeout(mlDebounce);
+  mlDebounce = setTimeout(runMlAnalysis, 1200);
+});
+
+// Auto-detect category on image upload
+async function runImageAutoDetect() {
+  if (!selectedFile) return;
+  try {
+    showMlStatus("Analyzing image with AI (may take up to 60 seconds on first use)...", "info");
+    const b64 = await fileToBase64(selectedFile);
+    const resp = await fetch(`${ML_SERVICE_URL}/detect-all`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ image_base64: b64 }),
+      signal: AbortSignal.timeout(120000)
+    });
+    if (!resp.ok) throw new Error(`ML service returned ${resp.status}`);
+    const data = await resp.json();
+
+    // Auto-set category from image detection
+    const detCat = data.detected_category || "Other";
+    const sel = document.getElementById("f_category");
+    for (let i = 0; i < sel.options.length; i++) {
+      if (sel.options[i].value === detCat) { sel.selectedIndex = i; break; }
+    }
+
+    // Find best detection for badge
+    let bestConf = 0, bestName = null, bestCount = 0;
+    for (const key of ["pothole", "garbage", "crack"]) {
+      const r = data[key];
+      if (r && r.has_detection && r.confidence > bestConf) {
+        bestConf = r.confidence; bestName = key; bestCount = r.count;
+      }
+    }
+
+    if (bestName) {
+      detectionResult = { has_detection: true, confidence: bestConf, count: bestCount };
+      aiSuggestedCat = detCat;
+      aiSuggestedConf = bestConf;
+      showDetectionBadge(detectionResult);
+      showAiSuggestion(detCat, bestConf, false);
+    } else {
+      detectionResult = { has_detection: false, confidence: 0, count: 0 };
+      showDetectionBadge(detectionResult);
+    }
+    hideMlStatus();
+  } catch (err) {
+    console.warn("[ML] Image auto-detect unavailable:", err.message);
+    showMlStatus("AI image analysis unavailable. You can still submit the issue.", "warn");
+  }
+}
+
+fileInput?.addEventListener("change", () => {
+  if (fileInput.files[0]) setTimeout(runImageAutoDetect, 300);
+});
+
+// -- GPS location -------------------------------------------------------------------
+document.getElementById("gpsBtn")?.addEventListener("click", () => {
+  if (!navigator.geolocation) { alert("Geolocation not supported by your browser."); return; }
+  const btn = document.getElementById("gpsBtn");
+  btn.textContent = "Locating...";
+  btn.disabled    = true;
+  navigator.geolocation.getCurrentPosition(
+    async pos => {
+      const { latitude: lat, longitude: lng } = pos.coords;
+      try {
+        const r = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`);
+        const d = await r.json();
+        document.getElementById("locationInput").value = d.display_name || `${lat}, ${lng}`;
+      } catch (_) {
+        document.getElementById("locationInput").value = `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
+      }
+      btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="22" y1="12" x2="18" y2="12"/><line x1="6" y1="12" x2="2" y2="12"/><line x1="12" y1="6" x2="12" y2="2"/><line x1="12" y1="22" x2="12" y2="18"/></svg> Use GPS location';
+      btn.disabled = false;
+    },
+    err => {
+      alert("Could not get location: " + err.message);
+      btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="22" y1="12" x2="18" y2="12"/><line x1="6" y1="12" x2="2" y2="12"/><line x1="12" y1="6" x2="12" y2="2"/><line x1="12" y1="22" x2="12" y2="18"/></svg> Use GPS location';
+      btn.disabled = false;
+    }
+  );
+});
+
+// -- Location autocomplete ----------------------------------------------------------
+const locInput    = document.getElementById("locationInput");
+const suggestBox  = document.getElementById("suggestions");
+let   locDebounce;
+
+locInput?.addEventListener("input", () => {
+  clearTimeout(locDebounce);
+  const q = locInput.value.trim();
+  if (q.length < 3) { suggestBox.innerHTML = ""; return; }
+  locDebounce = setTimeout(async () => {
+    try {
+      const r = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}&limit=5`);
+      const d = await r.json();
+      suggestBox.innerHTML = "";
+      d.forEach(place => {
+        const div = document.createElement("div");
+        div.className = "suggestion-item";
+        div.textContent = place.display_name;
+        div.onclick = () => { locInput.value = place.display_name; suggestBox.innerHTML = ""; };
+        suggestBox.appendChild(div);
+      });
+    } catch(_) {}
+  }, 400);
+});
+
+// -- Form submit --------------------------------------------------------------------
+document.getElementById("reportForm")?.addEventListener("submit", async e => {
+  e.preventDefault();
+
+  if (!window.firebaseHelpers) { alert("Firebase not loaded yet. Please wait a moment."); return; }
+
+  const title    = document.getElementById("f_title").value.trim();
+  const desc     = document.getElementById("f_desc").value.trim();
+  const category = document.getElementById("f_category").value;
+  const location = document.getElementById("locationInput").value.trim();
+
+  if (!title) { alert("Please enter an issue title."); return; }
+
+  const btn     = document.getElementById("submitBtn");
+  const btnText = document.getElementById("submitBtnText");
+  btn.disabled  = true;
+  btnText.textContent = "Submitting...";
+
+  try {
+    let imageUrl = "";
+    if (selectedFile) {
+      btnText.textContent = "Uploading image...";
+      imageUrl = await window.firebaseHelpers.uploadImage(selectedFile);
+    }
+
+    // Run ML analysis if not already done — but do not block submission
+    if (!aiSuggestedCat) {
+      btnText.textContent = "Running AI analysis...";
+      try {
+        await runMlAnalysis();
+      } catch (_) {
+        // ML is optional — continue with submission
+      }
+    }
+
+    btnText.textContent = "Saving...";
+    const issueData = {
+      title,
+      description:       desc,
+      category,
+      location,
+      image:             imageUrl || "",
+      mlCategory:        aiSuggestedCat    || null,
+      mlConfidence:      aiSuggestedConf   || null,
+      hasDetection:      detectionResult?.has_detection || false,
+      detectionConf:     detectionResult?.confidence    || null,
+      needsReview:       (aiSuggestedConf || 0) < 0.65,
+    };
+
+    await window.firebaseHelpers.addIssue(issueData);
+    alert("Issue submitted successfully. Thank you for reporting.");
+
+    e.target.reset();
+    clearImage();
+    document.getElementById("aiSuggestionBox").style.display = "none";
+    document.getElementById("detectionResult").style.display = "none";
+    hideMlStatus();
+    aiSuggestedCat = null; aiSuggestedConf = 0; detectionResult = null;
+
+    // Navigate to home to see the issue
+    switchPage("home");
+  } catch (err) {
+    console.error("Submit error:", err);
+    alert("Submission failed: " + err.message);
+  } finally {
+    btn.disabled  = false;
+    btnText.textContent = "Submit Issue";
+  }
+});
+</script>
+
+<!-- ============================================================
+     SIDEBAR NAVIGATION + AUTH MODAL
+     ============================================================ -->
+<script>
+// -- SPA page switching -------------------------------------------------------------
+function switchPage(pageName) {
+  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+  document.querySelectorAll(".sidebar-link[data-page]").forEach(l => l.classList.remove("active"));
+  const target = document.getElementById("page-" + pageName);
+  if (target) target.classList.add("active");
+  const navBtn = document.querySelector(`.sidebar-link[data-page="${pageName}"]`);
+  if (navBtn) navBtn.classList.add("active");
+  // Close mobile sidebar
+  document.getElementById("sidebar")?.classList.remove("open");
+  document.getElementById("hamburgerBtn")?.classList.remove("active");
+  // Scroll to top
+  document.getElementById("mainContent")?.scrollTo(0, 0);
+}
+
+document.querySelectorAll(".sidebar-link[data-page]").forEach(btn => {
+  btn.addEventListener("click", () => switchPage(btn.dataset.page));
+});
+
+// -- Mobile hamburger ---------------------------------------------------------------
+document.getElementById("hamburgerBtn")?.addEventListener("click", () => {
+  document.getElementById("sidebar")?.classList.toggle("open");
+  document.getElementById("hamburgerBtn")?.classList.toggle("active");
+});
+
+// -- Auth ---------------------------------------------------------------------------
+const ADMIN_EMAILS_NAV = ["sarthaksant2004@gmail.com"];
+
+function updateSidebarUser(user) {
+  const userEl   = document.getElementById("sidebar-user");
+  const signinEl = document.getElementById("sidebarSigninBtn");
+  if (user?.email) {
+    const initials = (user.displayName
+      ? user.displayName.split(" ").map(s=>s[0]).join("")
+      : user.email.split("@")[0].slice(0,2)).toUpperCase();
+    const isAdmin = ADMIN_EMAILS_NAV.includes(user.email);
+    userEl.innerHTML = `
+      <div class="sidebar-user-info">
+        <div class="sidebar-user-avatar">${initials}</div>
+        <div class="sidebar-user-details">
+          <div class="sidebar-user-name">${user.displayName || user.email.split("@")[0]}</div>
+          <div class="sidebar-user-email">${user.email}</div>
+          ${isAdmin ? '<span class="admin-tag">Admin</span>' : ''}
+        </div>
+      </div>`;
+    signinEl.innerHTML = `
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      <span>Sign Out</span>`;
+    signinEl.onclick = () => window.firebaseHelpers?.signOut();
+  } else {
+    userEl.innerHTML = "";
+    signinEl.innerHTML = `
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+      <span>Sign In</span>`;
+    signinEl.onclick = openAuth;
+  }
+}
+
+function openAuth() { document.getElementById("authModal")?.classList.add("active"); }
+function closeAuth(){ document.getElementById("authModal")?.classList.remove("active"); }
+
+document.addEventListener("DOMContentLoaded", () => {
+  // Build auth modal
+  if (!document.getElementById("authModal")) {
+    document.body.insertAdjacentHTML("beforeend", `
+      <div id="authModal" class="auth-modal">
+        <div class="auth-modal-card">
+          <button class="auth-close" id="authClose">&times;</button>
+          <h3>Sign In to CivicTrack</h3>
+          <p class="auth-subtitle">Sign in to report issues, track progress, and upvote complaints.</p>
+          <div class="oauth-row">
+            <button id="googleSignIn" class="btn-google">
+              <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" />
+              Continue with Google
+            </button>
+          </div>
+          <div class="or-sep"><span>or</span></div>
+          <div class="tab-row">
+            <button id="tabSI" class="tab active">Sign In</button>
+            <button id="tabSU" class="tab">Sign Up</button>
+          </div>
+          <form id="frmSI" class="auth-form">
+            <label>Email</label><input type="email" id="si_email" required />
+            <label>Password</label><input type="password" id="si_pass" required />
+            <button type="submit" class="btn-primary">Sign In</button>
+          </form>
+          <form id="frmSU" class="auth-form hidden">
+            <label>Full name</label><input type="text" id="su_name" required />
+            <label>Email</label><input type="email" id="su_email" required />
+            <label>Password</label><input type="password" id="su_pass" required />
+            <button type="submit" class="btn-primary">Create Account</button>
+          </form>
+        </div>
+      </div>`);
+
+    document.getElementById("authClose").onclick = closeAuth;
+    document.getElementById("googleSignIn").onclick = async () => {
+      try { await window.firebaseHelpers.signInWithGoogle(); closeAuth(); }
+      catch(err) { alert("Google sign-in failed: " + err.message); }
+    };
+
+    const tabSI=document.getElementById("tabSI"), tabSU=document.getElementById("tabSU");
+    const frmSI=document.getElementById("frmSI"), frmSU=document.getElementById("frmSU");
+    tabSI.onclick=()=>{ tabSI.classList.add("active"); tabSU.classList.remove("active"); frmSI.classList.remove("hidden"); frmSU.classList.add("hidden"); };
+    tabSU.onclick=()=>{ tabSU.classList.add("active"); tabSI.classList.remove("active"); frmSU.classList.remove("hidden"); frmSI.classList.add("hidden"); };
+
+    frmSI.onsubmit=async e=>{ e.preventDefault();
+      try { await window.firebaseHelpers.signInWithEmail(document.getElementById("si_email").value, document.getElementById("si_pass").value); closeAuth(); }
+      catch(err){ alert("Sign in failed: "+err.message); } };
+
+    frmSU.onsubmit=async e=>{ e.preventDefault();
+      try { const r=await window.firebaseHelpers.signUpWithEmail(document.getElementById("su_email").value, document.getElementById("su_pass").value);
+        try { await r.user.updateProfile({displayName:document.getElementById("su_name").value}); } catch(_){}
+        closeAuth(); }
+      catch(err){ alert("Sign up failed: "+err.message); } };
+  }
+
+  window.firebaseHelpers?.onAuthStateChanged?.(u => updateSidebarUser(u));
+});
+</script>
+
+</body>
+</html>

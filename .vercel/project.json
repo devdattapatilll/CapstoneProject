@@ -1,0 +1,11 @@
+{
+  "projectId": null,
+  "orgId": null,
+  "settings": {
+    "framework": null,
+    "buildCommand": null,
+    "outputDirectory": ".",
+    "devCommand": null,
+    "installCommand": null
+  }
+}
